@@ -12,6 +12,23 @@ function changeText(e){
   }
 }
 
+function ajaxLoad(){
+  return dispatch => {
+	dispatch({
+	  type: 'AJAX_LOAD',
+	  payload: 'loading'
+	})
+  	fetch('http://api.openweathermap.org/data/2.5/weather?q=London,uk&appid=b1b15e88fa797225412429c1c50c122a').then(r =>{
+	  return r.text()
+  	}).then(text =>{
+	  dispatch({
+		type: 'AJAX_LOAD',
+		payload: text
+	  })
+  	})
+  }
+}
+
 class TextFiled extends Component {
   render(){
   	let onChange = this.props.actions.changeText;
@@ -25,8 +42,10 @@ class App extends Component {
     return (
       <div>
       	<h1>Hello, {this.props.text}.</h1>
+      	這邊的輸入框應該會改變上面的內容<TextFiled actions={actions} text={text} />
       	<hr />
-      	<TextFiled actions={actions} text={text} />
+      	<h2 onClick={actions.ajaxLoad}> 下面開始應該是ajax 載入的內容(點我載入) </h2>
+      	{this.props.ajaxcontent}
       </div>
     );
   }
@@ -34,12 +53,18 @@ class App extends Component {
 
 function mapStateToProps(state) {
 
-  return { text: state.text }
+  return {
+  	text: state.text,
+  	ajaxcontent: state.ajaxcontent
+  }
 }
 
 function mapDispatchToProps(dispatch) {
   return{
-    actions: bindActionCreators({changeText:changeText}, dispatch)
+    actions: bindActionCreators({
+      changeText,
+      ajaxLoad
+    }, dispatch)
   }
 }
 
